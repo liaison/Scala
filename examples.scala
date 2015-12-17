@@ -35,23 +35,33 @@ object Run {
   }
 
   /**
+   *  a more functional-style implementation of quick sort.
+   */
+  def quick_sort_func(xs : List[Int]) : List[Int] = {
+    xs match {
+      case Nil => xs
+      case pivot::tail =>
+        quick_sort(xs.filter(_<pivot)):::(quick_sort(xs.filter(_>=pivot)))
+    }
+  }
+
+  /**
    *  The main function !
    */
   def main(args : Array[String]) {
-    
+
     val list = (10 to 1 by -1).toList
-    
+
     if (args.length > 0) { 
       val input = Source.fromFile(args(0)).getLines.toList
       
       input.foldLeft(0)(printLine)
-
     } else {
         Console.err.println("Error: missing the input file!")
     }
 
     println("Before quick_sort: " + list)
-    println("After sorting: " + quick_sort(list))
+    println("After sorting: " + quick_sort_func(list))
   }
 }
 
