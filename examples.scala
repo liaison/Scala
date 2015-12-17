@@ -11,18 +11,20 @@ import scala.collection.immutable.List
 /**
  * The singleton object that serves as the entrance of the program.
  */
-object Examples {
+object Run {
 
-  def widthOfLine(s : String) : Int = {
-    s.length
+  /**
+   *  Print each line with its line number.
+   */
+  def printLine(count : Int, line : String) : Int = {
+    print(count + "\t"); println(line)
+    // Return the next line number.
+    count + 1
   }
 
-  def printLine(line : String) : Unit = {
-  
-    print(widthOfLine(line) + " ")
-    println(line)    
-  }
- 
+  /**
+   *  the classic quick sort algorithm
+   */
   def quick_sort(xs : List[Int]) : List[Int] = {
     if (xs.length < 2) {
       return xs
@@ -38,22 +40,18 @@ object Examples {
   def main(args : Array[String]) {
     
     val list = (10 to 1 by -1).toList
-
     
-    if (args.length > 0) {
- 
+    if (args.length > 0) { 
       val input = Source.fromFile(args(0)).getLines.toList
       
-      input.foreach(printLine)
+      input.foldLeft(0)(printLine)
 
     } else {
         Console.err.println("Error: missing the input file!")
     }
-    
-    
+
     println("Before quick_sort: " + list)
-    
-    println("After sorting:" + quick_sort(list))
+    println("After sorting: " + quick_sort(list))
   }
 }
 
