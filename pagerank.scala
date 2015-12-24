@@ -85,8 +85,42 @@ object PageRank {
         }
 
         // Return the new page rank values.
-        Map() ++ new_rank_map
+        new_rank_map
     }
+    
+    /**
+     *  Function with closture and mutable set and maps.
+     */
+    def page_ranking_closure(
+                       url_neighbors_list : List[(String, List[String])],
+                       rank_map : Map[String, Float],
+                       iter     : Int)
+        : Map[String, Float] = {
+        
+        var new_rank_map = rank_map
+
+        for (i <- 0 to iter ) {
+            val old_rank_map = new_rank_map
+            val cal_rank_map = rank_map.map{
+              case (url, rank) => (url, 0.15F / rank_map.size) }
+
+            url_neighbors_list.foreach{ case (url, neighbors) =>
+                val contrib = old_rank_map(url) * 0.85F / neighbors.length
+                
+                // Update the rankings with contributions
+                neighbors.foreach( neighbor =>
+                    cal_rank_map(neighbor) += contrib )
+            }
+            
+            new_rank_map = cal_rank_map
+
+            println("page_rank", new_rank_map)
+        }
+
+        // Return the new page rank values.
+        new_rank_map
+    }
+
 
     def process(input : List[String], iter : Int) {
         
@@ -104,8 +138,11 @@ object PageRank {
         println(page_rank_map)
         
         val final_rank = page_ranking(url_neighbors_list, page_rank_map, iter)
+        val final_rank_closure = page_ranking_closure(url_neighbors_list, page_rank_map, iter)
 	println("final ranking:")
 	println(final_rank)
+        println("final_ranking_closure:")
+        println(final_rank_closure)
     }
 
     def main(args : Array[String]) {
