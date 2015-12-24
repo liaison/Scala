@@ -28,7 +28,7 @@ object PageRank {
     def parse(input : List[String]) : 
         (Set[String], Map[String, List[String]]) ={
         
-        val url_set = Set[String]()
+        var url_set = Set[String]()
         
         /** Basically, doing .groupByKey() SQL operation to obtain the map: 
                 Map[url, List[neighbor_urls]] */
@@ -36,7 +36,7 @@ object PageRank {
             line => val pair = line.split("\\s+")
             (pair(0), pair(1))
         }.groupBy{case (p0, p1) => p0}.map{ case (k, group) =>
-            val neighbor_list = group.map{ case (p0, p1) => url_set ++ List(p0, p1); p1 }.toList
+            val neighbor_list = group.map{ case (p0, p1) => url_set ++= List(p0, p1); p1 }.toList
             (k, neighbor_list)
         }
 
@@ -52,7 +52,7 @@ object PageRank {
         val page_rank_map = Map[String, Float]()
         
         // Set the initial PageRank value as 1
-        url_set.foreach{ url => page_rank_map + (url -> 1F) }
+        url_set.foreach{ url => page_rank_map += (url -> 1F) }
         
         page_rank_map
     }
@@ -89,6 +89,10 @@ object PageRank {
         
         val (url_set, url_neighbors_map) = parse(input)
         
+        print("url_set:")
+        print(url_set)
+        
+        print("url_neighbor_map:")
         print(url_neighbors_map)
         
         val page_rank_map = init_rank(url_set)
