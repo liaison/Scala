@@ -6,8 +6,15 @@ import scala.collection.mutable.Map
 import scala.collection.mutable.Set
 
 /**
- *  Implementation of PageRank alogorithm,
- *    with the damping factor as 0.85, 
+ *  Implementation of PageRank alogorithm:
+ *    
+ *     PR(N_i) = (1-d)/N + Sum(PR(N_j)/L_j))
+ *    
+ *    where PR(N_i) is the PageRank value for the url N_i and
+ *      N is number of the links in the given graph, L_j is the number of outbound of the url N_j.
+ *      The url N_j has a link pointing to N_i
+ *
+ *    with the damping factor d as 0.85, 
  *      i.e. the possibility that a surfer randomly clicks on a page.
  *
  *  Input file format:
