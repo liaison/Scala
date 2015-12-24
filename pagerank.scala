@@ -23,7 +23,7 @@ object PageRank {
      *      which would be used for the later iteration.
      *
      *    Set[url]
-     *    Map[url, List[neighbor_url]]
+     *    List[url, List[neighbor_url]]
      */
     def parse(input : List[String]) : 
         (Set[String], List[(String, List[String])]) ={
@@ -64,7 +64,7 @@ object PageRank {
         : Map[String, Float] = {
         
         var new_rank_map = rank_map
-        val remain_list = rank_map.map{
+        val init_values = rank_map.map{
             case (url, rank) => (url, 0.15F / rank_map.size) }.toList
 
         for (i <- 0 to iter ) {
@@ -73,8 +73,9 @@ object PageRank {
                 neighbors.map( neighbor => (neighbor, contrib)).toList
             }
             
+            // accumulate the contributions and the initial values.
             new_rank_map = Map() ++
-                (remain_list ::: contribs_list).groupBy{ case (t0, t1) => t0 }.
+                (init_values ::: contribs_list).groupBy{ case (t0, t1) => t0 }.
                 map{ case (k, group) => 
                     val value_list = group.map{ case (p0, p1) => p1 }.toList
                     (k, value_list.foldLeft(0F)(_+_))
@@ -110,7 +111,8 @@ object PageRank {
     def main(args : Array[String]) {
     
         if (args.length > 1) { 
-            val input = Source.fromFile(args(0)).getLines.toList
+            val input =
+              Source.fromFile(args(0)).getLines.toList.filter(_.startsWith("#") == false)
             val iter = args(1).toInt
             process(input, iter)
             
