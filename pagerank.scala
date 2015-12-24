@@ -64,16 +64,14 @@ object PageRank {
         : Map[String, Float] = {
         
         var new_rank_map = rank_map
-        val remain_list = rank_map.map{ case (url, rank) => (url, 0.15F) }.toList
+        val remain_list = rank_map.map{
+            case (url, rank) => (url, 0.15F / rank_map.size) }.toList
 
         for (i <- 0 to iter ) {
             val contribs_list = url_neighbors_list.flatMap{ case (url, neighbors) =>
                 val contrib = new_rank_map(url) * 0.85F / neighbors.length
                 neighbors.map( neighbor => (neighbor, contrib)).toList
             }
-   
-            println("contribs_list") 
-            println(contribs_list)
             
             new_rank_map = Map() ++
                 (remain_list ::: contribs_list).groupBy{ case (t0, t1) => t0 }.
@@ -82,8 +80,7 @@ object PageRank {
                     (k, value_list.foldLeft(0F)(_+_))
                 }
             
-            println("rank_map:")
-            println(new_rank_map)        
+            println("page_rank", new_rank_map) 
         }
 
         // Return the new page rank values.
