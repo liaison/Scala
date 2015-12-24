@@ -26,7 +26,7 @@ object PageRank {
      *    Map[url, List[neighbor_url]]
      */
     def parse(input : List[String]) : 
-        (Set[String], Map[String, List[String]]) ={
+        (Set[String], List[(String, List[String])]) ={
         
         var url_set = Set[String]()
         
@@ -36,11 +36,12 @@ object PageRank {
             line => val pair = line.split("\\s+")
             (pair(0), pair(1))
         }.groupBy{case (p0, p1) => p0}.map{ case (k, group) =>
-            val neighbor_list = group.map{ case (p0, p1) => url_set ++= List(p0, p1); p1 }.toList
+            val neighbor_list = group.map{
+                case (p0, p1) => url_set ++= List(p0, p1); p1 }.toList
             (k, neighbor_list)
         }
 
-        (url_set, Map() ++ url_neighbors)
+        (url_set, url_neighbors.toList)
     }
 
     /**
@@ -57,63 +58,67 @@ object PageRank {
         page_rank_map
     }
     
-    def page_ranking(url_map  : Map[String, List[String]],
+    def page_ranking(url_neighbors_list : List[(String, List[String])],
                      rank_map : Map[String, Float],
                      iter     : Int)
         : Map[String, Float] = {
         
         var new_rank_map = rank_map
-        
+        val remain_list = rank_map.map{ case (url, rank) => (url, 0.15F) }.toList
+
         for (i <- 0 to iter ) {
-            val contribs_list = url_map.flatMap{ case (url, neighbors) =>
+            val contribs_list = url_neighbors_list.flatMap{ case (url, neighbors) =>
                 val contrib = new_rank_map(url) * 0.85F / neighbors.length
-                neighbors.map( neighbor => (neighbor, contrib) ).toList
+                neighbors.map( neighbor => (neighbor, contrib)).toList
             }
-    
-            print(contribs_list)
+   
+            println("contribs_list") 
+            println(contribs_list)
             
             new_rank_map = Map() ++
-                contribs_list.groupBy{ case (t0, t1) => t0 }.
+                (remain_list ::: contribs_list).groupBy{ case (t0, t1) => t0 }.
                 map{ case (k, group) => 
                     val value_list = group.map{ case (p0, p1) => p1 }.toList
-                    (k, 0.15F + value_list.foldLeft(0F)(_+_))
+                    (k, value_list.foldLeft(0F)(_+_))
                 }
-        
+            
+            println("rank_map:")
+            println(new_rank_map)        
         }
 
         // Return the new page rank values.
         Map() ++ new_rank_map
     }
 
-    def process(input : List[String]) {
+    def process(input : List[String], iter : Int) {
         
-        val (url_set, url_neighbors_map) = parse(input)
+        val (url_set, url_neighbors_list) = parse(input)
         
-        print("url_set:")
-        print(url_set)
+        println("url_set:")
+        println(url_set)
         
-        print("url_neighbor_map:")
-        print(url_neighbors_map)
+        println("url_neighbor_list:")
+        println(url_neighbors_list)
         
         val page_rank_map = init_rank(url_set)
         
-        print("init ranking:")
-        print(page_rank_map)
+        println("init ranking:")
+        println(page_rank_map)
         
-        // number of iteration
-        val iter = 10
-        print(page_ranking(url_neighbors_map, page_rank_map, iter))
+        val final_rank = page_ranking(url_neighbors_list, page_rank_map, iter)
+	println("final ranking:")
+	println(final_rank)
     }
 
     def main(args : Array[String]) {
     
-        if (args.length > 0) { 
+        if (args.length > 1) { 
             val input = Source.fromFile(args(0)).getLines.toList
-            
-            process(input)
+            val iter = args(1).toInt
+            process(input, iter)
             
         } else {
-            Console.err.println("Error: missing the links mapping file!")
+            Console.err.println("Error: missing arguments!")
         }
     }
 
