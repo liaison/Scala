@@ -15,6 +15,10 @@ import scala.collection.mutable.Set
  *
  *  The two URLs are separated by spaces.
  *
+ *  Usage:
+ *    >scala PageRank input.file num_of_iteration
+ *
+ *
  */
 object PageRank {
 
@@ -137,12 +141,9 @@ object PageRank {
         println("init ranking:")
         println(page_rank_map)
         
-        val final_rank = page_ranking(url_neighbors_list, page_rank_map, iter)
-        val final_rank_closure = page_ranking_closure(url_neighbors_list, page_rank_map, iter)
+        val final_ranking = page_ranking(url_neighbors_list, page_rank_map, iter)
 	println("final ranking:")
-	println(final_rank)
-        println("final_ranking_closure:")
-        println(final_rank_closure)
+	println(final_ranking)
     }
 
     def main(args : Array[String]) {
