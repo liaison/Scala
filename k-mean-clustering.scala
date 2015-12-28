@@ -11,24 +11,41 @@ object K_Mean_Clustering {
     def process(input: List[String], k: Int) {
         val points = parse(input)
 
-        println(points)
+        println("points:")
+        points.foreach(print)
+        println()
+
+        val centroids = initCentroids(points, k)
+
+        println("centroids:")
+        centroids.foreach(println)
     }
 
     /**
      * Initialize the centroid for each cluster.
      */
-    def initCentroids(points: List[(Int, Int)], k: Int) : Array[(Int, Int)] = {
-    
+    def initCentroids(points: Array[(Int, Int)], k: Int) : Array[(Int, Int)] = {
+        // randomly pick k unique candidates.
+        val candidates = rand_k_of_n(k, points.length)
+
+        // retrieve the candidate points.
+        candidates.map{points(_)}
     }
 
     /**
-     *  Generate a sorted list of k unique numbers out of the range n.
+     *  Generate a sorted array of k unique numbers out of the range n.
+     *   [A1, A2... Ak]   0 <= Ai <= n-1
+     *
+     *   require (k <= n)
      */
-    def rand_k_of_n(k: Int, n: Int) : List[Int] = {
+    def rand_k_of_n(k: Int, n: Int) : Array[Int] = {
         val candidates = scala.collection.mutable.Set[Int]()
         val oracle = new scala.util.Random
-        val ret = Array[Int](k)
-        
+        val ret = new Array[Int](k)
+
+        // parameter check, otherwise, endless loop.
+        if(k > n) return ret
+
         def unique_rand() : Int = {
             val c = oracle.nextInt(n)
             if (candidates.contains(c)) return unique_rand()
@@ -36,16 +53,16 @@ object K_Mean_Clustering {
             c
         }
 
-        (1 to k).foreach(i => ret(i) = unique_rand())
-        ret.sortWith(_>_).toList
+        (1 to k).foreach(i => ret(i-1) = unique_rand())
+        ret.sortWith(_<_)
     }
 
     /**
      *  Parse the input file to get the coordination of points.
      */
-    def parse(input: List[String]) : List[(Int, Int)] = {        
+    def parse(input: List[String]) : Array[(Int, Int)] = {
         input.map{ line => val XY = line.split(",").map(_.trim)
-                    (XY(0).toInt, XY(1).toInt) }
+                    (XY(0).toInt, XY(1).toInt) }.toArray
     }
 
     def main(args: Array[String]) {
