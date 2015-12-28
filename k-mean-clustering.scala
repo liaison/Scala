@@ -19,6 +19,59 @@ object K_Mean_Clustering {
 
         println("centroids:")
         centroids.foreach(println)
+
+        val clusters = cluster(points, centroids)
+        printClusters(clusters)
+    }
+
+    /**
+     *  not need to be precise (doing the square root)
+     */
+    def distance(a: (Int, Int), b: (Int, Int)) : Int = {
+        val dx = a._1 - b._1
+        val dy = a._2 - b._2
+        dx * dx + dy * dy
+    }
+
+    def printClusters(clusters: Array[Set[(Int, Int)]]) {
+        println("clusters:")
+        clusters.foreach{ set =>
+            set.foreach(print)
+            println()
+        }
+    }
+
+    /**
+     *  cluster the points, given the centroids.
+     */
+    def cluster(points: Array[(Int, Int)], centroids: Array[(Int, Int)]) = {
+        val clusters = new Array[Set[(Int, Int)]](centroids.length)
+        // initialize sets, otherwise NULL pointer exception.
+        (1 to centroids.length).foreach(i=> clusters(i-1) = Set[(Int, Int)]())
+
+        // query for the closest centroid.
+        def closestCentroid(p: (Int, Int)) : Int = {
+            var min_distance = Int.MaxValue
+            var min_index = 0
+            var index = 0
+            centroids.foreach{ c =>
+                val d = distance(c, p)
+                if( d < min_distance ) {
+                    min_index = index
+                    min_distance = d
+                }
+                index += 1
+            }
+            // return the closest centroid.
+            min_index
+        }
+
+        points.foreach{ p =>
+            val c = closestCentroid(p)
+            clusters(c) += p
+        }
+
+        clusters
     }
 
     /**
