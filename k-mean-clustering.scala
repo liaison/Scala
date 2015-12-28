@@ -25,20 +25,39 @@ object K_Mean_Clustering {
     }
 
     /**
-     *  not need to be precise (doing the square root)
+     * Initialize the centroid for each cluster.
      */
-    def distance(a: (Int, Int), b: (Int, Int)) : Int = {
-        val dx = a._1 - b._1
-        val dy = a._2 - b._2
-        dx * dx + dy * dy
+    def initCentroids(points: Array[(Int, Int)], k: Int) : Array[(Int, Int)] = {
+        // randomly pick k unique candidates.
+        val candidates = rand_k_of_n(k, points.length)
+
+        // retrieve the candidate points.
+        candidates.map{points(_)}
     }
 
-    def printClusters(clusters: Array[Set[(Int, Int)]]) {
-        println("clusters:")
-        clusters.foreach{ set =>
-            set.foreach(print)
-            println()
+    /**
+     *  Generate a sorted array of k unique numbers out of the range n.
+     *   [A1, A2... Ak]   0 <= Ai <= n-1
+     *
+     *   require (k <= n)
+     */
+    def rand_k_of_n(k: Int, n: Int) : Array[Int] = {
+        val candidates = scala.collection.mutable.Set[Int]()
+        val oracle = new scala.util.Random
+        val ret = new Array[Int](k)
+
+        // parameter check, otherwise, endless loop.
+        if(k > n) return ret
+
+        def unique_rand() : Int = {
+            val newBee = oracle.nextInt(n)
+            if (candidates.contains(newBee)) return unique_rand()
+            candidates += newBee;
+            newBee
         }
+
+        (1 to k).foreach(i => ret(i-1) = unique_rand())
+        ret.sortWith(_<_)
     }
 
     /**
@@ -75,39 +94,20 @@ object K_Mean_Clustering {
     }
 
     /**
-     * Initialize the centroid for each cluster.
+     *  not need to be precise (doing the square root)
      */
-    def initCentroids(points: Array[(Int, Int)], k: Int) : Array[(Int, Int)] = {
-        // randomly pick k unique candidates.
-        val candidates = rand_k_of_n(k, points.length)
-
-        // retrieve the candidate points.
-        candidates.map{points(_)}
+    def distance(a: (Int, Int), b: (Int, Int)) : Int = {
+        val dx = a._1 - b._1
+        val dy = a._2 - b._2
+        dx * dx + dy * dy
     }
 
-    /**
-     *  Generate a sorted array of k unique numbers out of the range n.
-     *   [A1, A2... Ak]   0 <= Ai <= n-1
-     *
-     *   require (k <= n)
-     */
-    def rand_k_of_n(k: Int, n: Int) : Array[Int] = {
-        val candidates = scala.collection.mutable.Set[Int]()
-        val oracle = new scala.util.Random
-        val ret = new Array[Int](k)
-
-        // parameter check, otherwise, endless loop.
-        if(k > n) return ret
-
-        def unique_rand() : Int = {
-            val c = oracle.nextInt(n)
-            if (candidates.contains(c)) return unique_rand()
-            candidates += c;
-            c
+    def printClusters(clusters: Array[Set[(Int, Int)]]) {
+        println("clusters:")
+        clusters.foreach{ set =>
+            set.foreach(print)
+            println()
         }
-
-        (1 to k).foreach(i => ret(i-1) = unique_rand())
-        ret.sortWith(_<_)
     }
 
     /**
