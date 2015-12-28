@@ -149,8 +149,8 @@ object PageRank {
         println(page_rank_map)
         
         val final_ranking = page_ranking(url_neighbors_list, page_rank_map, iter)
-	println("final ranking:")
-	println(final_ranking)
+        println("final ranking:")
+        println(final_ranking)
     }
 
     def main(args : Array[String]) {
