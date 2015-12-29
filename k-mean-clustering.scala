@@ -114,16 +114,10 @@ object K_Mean_Clustering {
 
         // Find out the nearest centroid, given the point and existing centroids.
         def nearest_centroid(p: (Float, Float)) : (Float, Float) = {
-            var min_distance = Float.MaxValue
-            var ret = p
-            centroids.foreach{ c =>
-                val d = distance(c, p)
-                if( d < min_distance ) {
-                    min_distance = d
-                    ret = c
-                }
-            }
-            ret
+            centroids.foldLeft((Float.MaxValue, (0F, 0F))){ (B, A) =>
+                val d = distance(p, A)
+                if (d < B._1) (d, A) else B
+            }._2
         }
 
         // Iteractively pick up the rest of centroids,
