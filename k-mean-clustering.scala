@@ -141,10 +141,11 @@ object K_Mean_Clustering {
 
     def main(args: Array[String]) {
     
-        if (args.length > 1) { 
+        if (args.length > 1) {
+            // Filter out the empty and comment lines.
             val input =
-              Source.fromFile(args(0)).getLines.toList.filter(
-                _.startsWith("#") == false)
+              Source.fromFile(args(0)).getLines.toList
+                .filterNot(l => l.startsWith("#") || l.trim.equals(""))
 
             val k = args(1).toInt
             
