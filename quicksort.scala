@@ -3,7 +3,6 @@
  *  Some code examples to show the basic syntax and APIs of Scala.
  *
  */
-
 import scala.io.Source
 import scala.collection.immutable.List
 
@@ -11,7 +10,7 @@ import scala.collection.immutable.List
 /**
  * The singleton object that serves as the entrance of the program.
  */
-object Run {
+object QuickSort {
 
   /**
    *  Print each line with its line number.
@@ -41,28 +40,44 @@ object Run {
     xs match {
       case Nil => xs
       case pivot::tail =>
-        quick_sort(xs.filter(_<pivot)):::(quick_sort(xs.filter(_>=pivot)))
+        val lt = tail.filter(_<pivot)
+        val ge = tail.filter(_>=pivot)
+        quick_sort_func(lt):::(pivot::quick_sort_func(ge))
     }
   }
+
+  /**
+   *  Parse the input file into a list of integers
+   */
+  def parse(input: List[String]) : List[Int] = {
+      // concatenate all the numbers seperated by \n and spaces.
+      input.flatMap { line => line.split("\\s+").map{_.toInt} }
+  }
+
 
   /**
    *  The main function !
    */
   def main(args : Array[String]) {
 
-    val list = (10 to 1 by -1).toList
-
     if (args.length > 0) { 
       val input = Source.fromFile(args(0)).getLines.toList
-      
+                    .filterNot(l => l.startsWith("#") || l.trim == "")
+
+      println("input: ")
       input.foldLeft(0)(printLine)
+
+      val list = parse(input)
+      println("Before quick_sort: " + list)
+      println("After sorting: " + quick_sort_func(list))
+
     } else {
         Console.err.println("Error: missing the input file!")
+        println("Usage:\n\t Scala QuickSort input.file")
     }
 
-    println("Before quick_sort: " + list)
-    println("After sorting: " + quick_sort_func(list))
-  }
-}
+  } // end of main
+
+} // end of the singleton object.
 
 
