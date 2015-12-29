@@ -4,7 +4,17 @@ import scala.collection.immutable.List
 
 /**
  *  Implement the K-mean-clustering algorithm.
- * 
+ *
+ *  Usage:
+ *    scala K_Mean_Clustering input.file number_of_clusters
+ *
+ *  The input.file contains a list of coordination in two-dimention.
+ *   e.g
+ *          1.0, 3.0
+ *          6.2, 7.1
+ *
+ *   Note: the empty or comment lines (start with '#') are ignored.
+ *
  */
 object K_Mean_Clustering {
 
@@ -18,6 +28,7 @@ object K_Mean_Clustering {
         var centroids = initCentroids(points, k)
         var continue = true
 
+        // Continue to do clustering, until it converges.
         while (continue) {
             println("\ncentroids:")
             centroids.foreach(println)
@@ -73,10 +84,14 @@ object K_Mean_Clustering {
     /**
      *  cluster the points, given the centroids.
      */
-    def cluster(points: Array[(Float, Float)], centroids: Array[(Float, Float)]) = {
-        val clusters = new Array[Set[(Float, Float)]](centroids.length)
+    def cluster(   points: Array[(Float, Float)],
+                centroids: Array[(Float, Float)]) = {
+
+        val k = centroids.length
+        val clusters = new Array[Set[(Float, Float)]](k)
+
         // initialize sets, otherwise NULL pointer exception.
-        (1 to centroids.length).foreach(i=> clusters(i-1) = Set[(Float, Float)]())
+        (1 to k).foreach(i=>clusters(i-1) = Set[(Float, Float)]())
 
         // Query for the closest centroid.
         def closestCentroid(p: (Float, Float)) : Int = {
@@ -153,6 +168,7 @@ object K_Mean_Clustering {
             
         } else {
             Console.err.println("Error: missing arguments!")
+            println("Usage:\n\t scala K_Mean_Clustering input.file k")
         }
     }
 
