@@ -25,7 +25,9 @@ object K_Mean_Clustering {
         points.foreach(print)
         println()
 
-        var centroids = initCentroids(points, k)
+        //var centroids = initCentroids(points, k)
+        var centroids = k_means_plus_plus(points, k)
+
         var continue = true
 
         // Continue to do clustering, until it converges.
@@ -79,6 +81,75 @@ object K_Mean_Clustering {
 
         (1 to k).foreach(i => ret(i-1) = unique_rand())
         ret.sortWith(_<_)
+    }
+
+    /**
+     * https://en.wikipedia.org/wiki/K-means%2B%2B
+     *
+     *  The vanilla version of K-means has the shortcoming that
+     *    - the result is arbitrarily worse than optimum
+     *    - which depends on the initialization of centroids.
+     *
+     *  To overcome the defect, K-means ++ algorithm has been proposed to
+     *   improve the selection of initial centroids, to better stretch out
+     *   the centroids at the beginning.
+     *
+     * In simple terms, cluster centers are initially chosen at random from the
+     *  set of input observation vectors, where the probability of choosing
+     *  vector x is high if x is NOT near any previously chosen centers.
+     */
+    def k_means_plus_plus(points: Array[(Float, Float)], k: Int)
+            : Array[(Float, Float)] = {
+
+        val n = points.length
+        val oracle = new scala.util.Random
+
+        // uniformly pick up the first centroid.
+        val first_centroid = points(oracle.nextInt(n))
+        println("first centroid: " + first_centroid)
+
+        val centroids = scala.collection.mutable.Set(first_centroid)
+
+        // Find out the nearest centroid, given the point and existing centroids.
+        def nearest_centroid(p: (Float, Float)) : (Float, Float) = {
+            var min_distance = Float.MaxValue
+            var ret = p
+            centroids.foreach{ c =>
+                val d = distance(c, p)
+                if( d < min_distance ) {
+                    min_distance = d
+                    ret = c
+                }
+            }
+            ret
+        }
+
+        // Iteractively pick up the rest of centroids,
+        //  in favor of 'outlier' points to the existing centroids.
+        (1 to k-1).foreach { _ =>
+            // calculate the chance to be picked for each point,
+            //   which is proportional to the distance of its nearest centroid.
+            val prob_dist = points.map{ p =>
+                val nc = nearest_centroid(p)
+                distance(p, nc)
+            }
+
+            val sum = prob_dist.foldLeft(0F)(_+_)
+            val lotto = oracle.nextFloat() * sum
+
+            // Find out the point that has been picked.
+            var cursor = 0F
+            var index = 0
+            prob_dist.find{ p =>
+                if ( cursor <= lotto && lotto < cursor+p ) true
+                else { cursor += p; index += 1; false }
+            }
+
+            centroids += points(index)
+        }
+
+        // Return the selected centroids.
+        centroids.toArray
     }
 
     /**
