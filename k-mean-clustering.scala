@@ -3,7 +3,9 @@ import scala.io.Source
 import scala.collection.immutable.List
 
 /**
- *  Implement the K-mean-clustering algorithm.
+ *  Implement the K-mean-clustering algorithm and also K-means ++ which improves
+ *    on the initial selection of centroids to make the algorithm in expection
+ *    more optimal and also make it converge faster.
  *
  *  Usage:
  *    scala K_Mean_Clustering input.file number_of_clusters
