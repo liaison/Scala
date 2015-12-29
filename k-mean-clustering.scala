@@ -15,19 +15,29 @@ object K_Mean_Clustering {
         points.foreach(print)
         println()
 
-        val centroids = initCentroids(points, k)
+        var centroids = initCentroids(points, k)
+        var continue = true
 
-        println("centroids:")
-        centroids.foreach(println)
+        while (continue) {
+            println("\ncentroids:")
+            centroids.foreach(println)
 
-        val clusters = cluster(points, centroids)
-        printClusters(clusters)
+            val clusters = cluster(points, centroids)
+            printClusters(clusters)
+
+            val new_centroids = update_centroids(clusters)
+
+            if ( centroids.corresponds(new_centroids){_==_} ) continue = false
+            else centroids = new_centroids
+        }
     }
 
     /**
      * Initialize the centroid for each cluster.
      */
-    def initCentroids(points: Array[(Int, Int)], k: Int) : Array[(Int, Int)] = {
+    def initCentroids(points: Array[(Float, Float)], k: Int)
+        : Array[(Float, Float)] = {
+
         // randomly pick k unique candidates.
         val candidates = rand_k_of_n(k, points.length)
 
@@ -63,14 +73,14 @@ object K_Mean_Clustering {
     /**
      *  cluster the points, given the centroids.
      */
-    def cluster(points: Array[(Int, Int)], centroids: Array[(Int, Int)]) = {
-        val clusters = new Array[Set[(Int, Int)]](centroids.length)
+    def cluster(points: Array[(Float, Float)], centroids: Array[(Float, Float)]) = {
+        val clusters = new Array[Set[(Float, Float)]](centroids.length)
         // initialize sets, otherwise NULL pointer exception.
-        (1 to centroids.length).foreach(i=> clusters(i-1) = Set[(Int, Int)]())
+        (1 to centroids.length).foreach(i=> clusters(i-1) = Set[(Float, Float)]())
 
-        // query for the closest centroid.
-        def closestCentroid(p: (Int, Int)) : Int = {
-            var min_distance = Int.MaxValue
+        // Query for the closest centroid.
+        def closestCentroid(p: (Float, Float)) : Int = {
+            var min_distance = Float.MaxValue
             var min_index = 0
             var index = 0
             centroids.foreach{ c =>
@@ -85,24 +95,35 @@ object K_Mean_Clustering {
             min_index
         }
 
+        // Assign the point to its closest cluster.
         points.foreach{ p =>
             val c = closestCentroid(p)
             clusters(c) += p
         }
-
+        // Return the cluster.
         clusters
+    }
+
+    /**
+     * Update/calculate the centroids based on the clusters
+     */
+    def update_centroids(clusters: Array[Set[(Float, Float)]]) = {
+        clusters.map{ set =>
+            val sum = set.foldLeft((0F,0F))((A, B) => (A._1+B._1, A._2+B._2))
+            (sum._1/set.size, sum._2/set.size)
+        }
     }
 
     /**
      *  not need to be precise (doing the square root)
      */
-    def distance(a: (Int, Int), b: (Int, Int)) : Int = {
+    def distance(a: (Float, Float), b: (Float, Float)) : Float = {
         val dx = a._1 - b._1
         val dy = a._2 - b._2
         dx * dx + dy * dy
     }
 
-    def printClusters(clusters: Array[Set[(Int, Int)]]) {
+    def printClusters(clusters: Array[Set[(Float, Float)]]) {
         println("clusters:")
         clusters.foreach{ set =>
             set.foreach(print)
@@ -113,9 +134,9 @@ object K_Mean_Clustering {
     /**
      *  Parse the input file to get the coordination of points.
      */
-    def parse(input: List[String]) : Array[(Int, Int)] = {
+    def parse(input: List[String]) : Array[(Float, Float)] = {
         input.map{ line => val XY = line.split(",").map(_.trim)
-                    (XY(0).toInt, XY(1).toInt) }.toArray
+                    (XY(0).toFloat, XY(1).toFloat) }.toArray
     }
 
     def main(args: Array[String]) {
