@@ -11,10 +11,10 @@ import scala.collection.mutable.Set
  *     PR(N_i) = (1-d)/N + Sum(PR(N_j)/L_j))
  *    
  *    where PR(N_i) is the PageRank value for the url N_i and
- *      N is number of the links in the given graph, L_j is the number of outbound of the url N_j.
- *      The url N_j has a link pointing to N_i
+ *      N is number of the links in the given graph, L_j is the number of 
+ *      outbound of the url N_j. The url N_j has a link pointing to N_i.
  *
- *    with the damping factor d as 0.85, 
+ *    where the damping factor d is 0.85,
  *      i.e. the possibility that a surfer randomly clicks on a page.
  *
  *  Input file format:
@@ -79,7 +79,8 @@ object PageRank {
             case (url, rank) => (url, 0.15F / rank_map.size) }.toList
 
         for (i <- 0 to iter ) {
-            val contribs_list = url_neighbors_list.flatMap{ case (url, neighbors) =>
+            val contribs_list = url_neighbors_list.flatMap{
+              case (url, neighbors) =>
                 val contrib = new_rank_map(url) * 0.85F / neighbors.length
                 neighbors.map( neighbor => (neighbor, contrib)).toList
             }
@@ -148,7 +149,8 @@ object PageRank {
         println("init ranking:")
         println(page_rank_map)
         
-        val final_ranking = page_ranking(url_neighbors_list, page_rank_map, iter)
+        val final_ranking =
+            page_ranking(url_neighbors_list, page_rank_map, iter)
         println("final ranking:")
         println(final_ranking)
     }
@@ -157,13 +159,16 @@ object PageRank {
     
         if (args.length > 1) { 
             val input =
-              Source.fromFile(args(0)).getLines.toList.filter(_.startsWith("#") == false)
+              Source.fromFile(args(0)).getLines.toList
+                    .filter(_.startsWith("#") == false)
             val iter = args(1).toInt
             process(input, iter)
             
         } else {
             Console.err.println("Error: missing arguments!")
+            println("Usage:\n\t scala PageRank input.file iteration_num")
         }
     }
 
 }
+
