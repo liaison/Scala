@@ -18,7 +18,7 @@ import scala.collection.immutable.List
  *   Note: the empty or comment lines (start with '#') are ignored.
  *
  */
-object K_Mean_Clustering {
+object KMeansClustering {
 
     def process(input: List[String], k: Int) {
         val points = parse(input)

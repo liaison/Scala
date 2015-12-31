@@ -4,12 +4,16 @@ import scala.io.Source
 object LinearRegression {
     
     def parse(input: List[String]) = {
-        val nums = input.map{ s =>
-            val yX = s.split("\\s+")
-            (yX.head.toFloat, yX.tail.map(_.toFloat))
-        }
+        val yX = input.map{ s =>
+            val yX = s.split("\\s+").toList.map(_.toFloat)
+            (yX.head, yX.tail)
+        }.unzip
         
-        println(nums)
+        val y = yX._1
+        val X = yX._2
+
+        println(y)
+        println(X)
     }
 
     def process(input: List[String]) {
