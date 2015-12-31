@@ -5,7 +5,9 @@
 # 
 
 # compiler
-CC=scalac
+# CC=scalac
+# Fast Scala Compiler
+CC=fsc
 
 # the compiling output directory
 OUT=target
