@@ -130,7 +130,7 @@ object KMeansClustering {
                 distance(p, nc)
             }
 
-            val sum = prob_dist.foldLeft(0F)(_+_)
+            val sum = prob_dist.sum
             val lotto = oracle.nextFloat() * sum
 
             // Find out the point that has been picked.
