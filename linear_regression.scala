@@ -43,11 +43,12 @@ object LinearRegression {
     /*
      * The inner product of one's transposition with oneself.
      *  i.e.  A^T * A
-     *        = X'  where X'_i = sum((A^T_j)^2)
      */
     def A_T_dot_A(tmatrix: List[List[Float]]) = {
         tmatrix.map{ row =>
-            row.map{x => x*x}.foldLeft(0F)(_+_)
+            tmatrix.map{ col =>
+               row.zip(col).foldLeft(0F){(sum,elem) => sum + elem._1 * elem._2}
+            }
         }
     }
 
@@ -64,6 +65,7 @@ object LinearRegression {
         }
     }
 
+
     def process(input: List[String]) {
         println(input)
 
@@ -71,22 +73,55 @@ object LinearRegression {
         val y = yX._1
         val X = yX._2
 
-        println("y:")
-        println(y)
+        printList("y:", y)
+        printMatrix("X:", X)
 
-        println("X:")
-        printMatrix(X)
-
-        println("transposed X")
         val X_T = transpose(X)
-        printMatrix(X_T)
+        printMatrix("transposed X:", X_T)
 
         val X_T_dot_X = A_T_dot_A(X_T)
+        printMatrix("X_T * X", X_T_dot_X)
+
+        val elems = X_T_dot_X.flatMap{l=>l}.toArray
+        val X_T_dot_X_inverse = inverse_matrix_of_2_by_2(elems)
+        printMatrix("(X_T * X)^-1 (inversion)", X_T_dot_X_inverse)
+
         val X_T_dot_y = inner_product(X_T, y)
+        printList("X_T * y", X_T_dot_y)
+
+        val beta = inner_product(X_T_dot_X_inverse, X_T_dot_y)
+        printList("beta:", beta)
     }
 
- 
-    def printMatrix(matrix: List[List[Float]]) {
+    /*
+     * It is not an easy task to inverse any matrix.
+     *  which involves LU-decomposition operations.
+     *
+     * This function just perform an inversion on a fixed size matrix 2*2
+     *      | a b |
+     *    A | c d |                     |d  -b|
+     *                 A_T = 1/(a*d-b*c)|-c  a|
+     */
+    def inverse_matrix_of_2_by_2(elems: Array[Float]) = {
+        val a = elems(0)
+        val b = elems(1)
+        val c = elems(2)
+        val d = elems(3)
+        val factor = a*d - b*c
+        val A_T = new Array[List[Float]](2)
+        A_T(0) = List(d/factor, (0-b)/factor)
+        A_T(1) = List((0-c)/factor, a/factor)
+        A_T.toList
+    }
+
+    def printList(header: String, list: List[Float]) {
+        println(header)
+        list.foreach{ x => print("\t" + x) }
+        println()
+    }
+
+    def printMatrix(header: String, matrix: List[List[Float]]) {
+        println(header)
         matrix.foreach{ row =>
             row.foreach{ x => print("\t"+x) }
             println()
