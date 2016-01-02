@@ -3,7 +3,13 @@
 import scala.io.Source
 
 /**
+ * 
  *  Find out the closest pair of points in O(nlgn).
+ *  Based on the online course from Tim Roughgarden,
+ *   offered on coursera.com
+ *
+ *  more reference:
+ *   https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
  */
 object ClosestPair {
 
