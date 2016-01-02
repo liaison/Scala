@@ -1,8 +1,20 @@
 
 
 #
+# A list of points in a two-dimension space.
+# in the format of (X, Y) coordinate
 #
-#
+# Y
+# |
+# |                #
+# |        #
+# |          #  
+# |   #                  #
+# |                                 X
+# |--------------------------------->
 
-2 4 
+3 6
+2 2
+4 5
+2 8
 
