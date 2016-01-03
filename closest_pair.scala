@@ -59,7 +59,14 @@ object ClosestPair {
         val right_min = closest_distance(splits._2)
 
         val side_min = if(left_min < right_min) left_min else right_min
-
+        /*
+         * The overall complexity would be O(n*lgn*lgn) instead of O(n*lgn)
+         *  since here we do the sort at each level.
+         * If we manage to maintain the order of X and Y coordinate at the
+         *  same time, then the complexity could be reduced into O(n*lgn),
+         *  since we just need to sort the points once respectively on
+         *  X and Y coordinate, before the recursion.
+         */
         val sorted_points_on_Y = points.sortWith{ (A, B) => A._2 < B._2 }
         val index_limit = sorted_points_on_Y.length - 1
         val cross_min = sorted_points_on_Y.foldLeft((0, side_min)){ (cxt, E) =>
