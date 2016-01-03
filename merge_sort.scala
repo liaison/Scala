@@ -14,10 +14,13 @@ object MergeSort {
       // bottom case
       if(list.length < 2) return list
 
+      // Divide and conquer
       val mid = list.length / 2
       val splits = list.splitAt(mid)
       val left = merge_sort(splits._1)
       val right = merge_sort(splits._2)
+
+      // Merge the results in O(n)
       var l_cursor = 0
       val l_bound = left.length
       var r_cursor = 0
