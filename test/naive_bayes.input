@@ -1,0 +1,18 @@
+
+#
+# Training and testing data set.
+#
+# Training data input
+# Category, Document
+China, Chinese Beijing Chinese
+China, Chinese Chinese Shanghai
+China, Chinese Macao
+Japan, Tokyo Japan Chinese
+
+
+# Testing data set, i.e. unlabeled documents
+# This should be categories as "China"
+    , Chinese Chinese Chinese Tokyo Japan
+
+
+
