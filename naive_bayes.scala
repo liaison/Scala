@@ -1,6 +1,6 @@
 
 import scala.io.Source
-
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *  Classification. 
@@ -43,10 +43,31 @@ object NaiveBayes {
 
 
   /**
-   * Load the input file into the training and testing data set.
+   * Load the input file into the training and the testing data set.
    */
-  def parse_input(input: List[String]) = {
-  
+  def parse_input(input: List[String]) :
+    (List[(String, List[String])], List[List[String]]) = {
+
+    val training_data = new ArrayBuffer[(String, List[String])]()
+    val testing_data = new ArrayBuffer[List[String]]()
+
+    input.foreach{ line =>
+      val delimit = line.indexOf(',')
+      val label = line.take(delimit).trim
+      val document = line.substring(delimit+1).trim
+      label match {
+        case "" => testing_data += parse_term(document)
+        case _  => training_data.append((label, parse_term(document)))
+      }
+    }
+
+    (training_data.toList, testing_data.toList)
+  }
+
+
+  def print_list[T](header: String, list: List[T]) {
+    println(header)
+    println(list)
   }
 
   /**
@@ -58,7 +79,10 @@ object NaiveBayes {
       val input = Source.fromFile(args(0)).getLines.toList
                     .filterNot(l => l.startsWith("#") || l.trim == "")
 
-      parse_input(input)
+      val (training, testing) = parse_input(input)
+
+      print_list("training_data_set:", training)
+      print_list("testing_data_set:", testing)
 
     } else {
       Console.err.println("Error: missing the input file!")

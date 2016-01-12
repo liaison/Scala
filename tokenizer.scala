@@ -19,7 +19,7 @@ object Tokenizer {
 
 
   /**
-   *  Parse the input file into a list of integers
+   *  Parse the input file into a list of words/tokens without punctuation.
    */
   def parse(input: List[String]) : List[String] = {
       // parse words seperated by \n or spaces.
