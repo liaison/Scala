@@ -1,6 +1,8 @@
 
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Map
+
 
 /**
  *  Classification. 
@@ -65,7 +67,62 @@ object NaiveBayes {
   }
 
 
+  /**
+   * Fit the training data set with multinomial naive Bayes model.
+   *
+   *  (priori_probability(label), conditional_probability(term | label))
+   */
+  def multinomial_naive_bayes_fit(training_data: List[(String, List[String])])
+    : Map[String, Double] = {
+
+    // label: (count_all_terms, Map(term, count))
+    // The frequence of a term withinthe documents of a specific category.
+    val label_term_freq = Map[String, (Int, Map[String, Int])]()
+
+    training_data.foreach{ case (label, document) =>
+
+      val (total_term_cnt, term_freq) =
+        label_term_freq.getOrElse(label, (0, Map[String, Int]()))
+
+      // update the frequency count for each term
+      document.foreach{ term =>
+        val term_count = term_freq.getOrElse(term, 0)
+        // increment the count
+        term_freq(term) = term_count + 1
+      }
+
+      // update the label_term_frequency table
+      label_term_freq(label) = (total_term_cnt + document.size, term_freq)
+    } // end of training data set.
+
+    print_map("label_term_frequency:", label_term_freq)
+
+    // conditional_probability for each combination of label and term
+    val cond_prob_label_term = Map[String, Double]()
+
+    label_term_freq.foreach{ case (label, (total_count, term_freq))  =>
+      term_freq.map{ case (term, count) =>
+        cond_prob_label_term(s"${label}_${term}") = count.toDouble / total_count
+      }
+    }
+
+    print_map("label_term_conditional_probability:", cond_prob_label_term)
+
+    cond_prob_label_term
+  }
+
+
+  def print_map[K, V](header: String, map: Map[K, V]) {
+    println("")
+    println(header)
+    map.foreach{ case (key, value) => println(s"${key}: ${value}") }
+  }
+
+  /**
+   * A template function to print the list.
+   */
   def print_list[T](header: String, list: List[T]) {
+    println("")
     println(header)
     println(list)
   }
@@ -83,6 +140,8 @@ object NaiveBayes {
 
       print_list("training_data_set:", training)
       print_list("testing_data_set:", testing)
+
+      multinomial_naive_bayes_fit(training)
 
     } else {
       Console.err.println("Error: missing the input file!")
