@@ -12,6 +12,7 @@ CC=fsc
 # the compiling output directory
 OUT=target
 
+
 if [ ! -d $OUT ]; then
     mkdir $OUT
 fi
@@ -24,6 +25,10 @@ fi
 
 
 cd $OUT
+
+# compile the dependency sources first.
+$CC ../utils.scala
+
 
 for file in $SRC; do
     echo "compile $file ..."

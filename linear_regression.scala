@@ -114,11 +114,6 @@ object LinearRegression {
         A_T.toList
     }
 
-    def printList(header: String, list: List[Float]) {
-        println(header)
-        list.foreach{ x => print("\t" + x) }
-        println()
-    }
 
     def printMatrix(header: String, matrix: List[List[Float]]) {
         println(header)

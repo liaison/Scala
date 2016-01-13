@@ -1,4 +1,6 @@
 
+import Utils._
+
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Map
@@ -95,7 +97,7 @@ object NaiveBayes {
       label_term_freq(label) = (total_term_cnt + document.size, term_freq)
     } // end of training data set.
 
-    print_map("label_term_frequency:", label_term_freq)
+    Utils.print_map("label_term_frequency:", label_term_freq)
 
     // conditional_probability for each combination of label and term
     val cond_prob_label_term = Map[String, Double]()
@@ -106,26 +108,11 @@ object NaiveBayes {
       }
     }
 
-    print_map("label_term_conditional_probability:", cond_prob_label_term)
+    Utils.print_map("label_term_conditional_probability:", cond_prob_label_term)
 
     cond_prob_label_term
   }
 
-
-  def print_map[K, V](header: String, map: Map[K, V]) {
-    println("")
-    println(header)
-    map.foreach{ case (key, value) => println(s"${key}: ${value}") }
-  }
-
-  /**
-   * A template function to print the list.
-   */
-  def print_list[T](header: String, list: List[T]) {
-    println("")
-    println(header)
-    println(list)
-  }
 
   /**
    *  The main function !
@@ -138,8 +125,8 @@ object NaiveBayes {
 
       val (training, testing) = parse_input(input)
 
-      print_list("training_data_set:", training)
-      print_list("testing_data_set:", testing)
+      Utils.print_list("training_data_set:", training)
+      Utils.print_list("testing_data_set:", testing)
 
       multinomial_naive_bayes_fit(training)
 
