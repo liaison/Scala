@@ -15,3 +15,5 @@ Then I realised that it would be fun to implement some algorithms that I know, e
 * Run the algorithm
 
    The script "run.sh" is used to run the compiled program together with the input from the "test" folder.
+
+   e.g.   > ./run.sh naive_bayes.scala
