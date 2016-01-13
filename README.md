@@ -7,9 +7,11 @@ Then I realised that it would be fun to implement some algorithms that I know, e
 # How to 
 
 * Build the source files
+
    The script "build.sh" is intended to build an individual or all source files all together. The output of the compiling would be generated under the "target" folder.
 
-   e.g.  ./build.sh naive_bayes.scala
+   e.g.   > ./build.sh naive_bayes.scala
 
 * Run the algorithm
+
    The script "run.sh" is used to run the compiled program together with the input from the "test" folder.
