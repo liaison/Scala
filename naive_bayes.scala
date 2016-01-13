@@ -70,63 +70,78 @@ object NaiveBayes {
 
 
   /**
-   * Fit the training data set with multinomial naive Bayes model.
-   *
-   *  (priori_probability(label), conditional_probability(term | label))
+   * The class/object to do Naive Bayes estimate.
    */
-  def multinomial_naive_bayes_fit(training: List[(String, List[String])])
-    : Map[String, Double] = {
+  object multinomial_naive_Bayes {
 
-    // label: (count_all_terms, Map(term, count))
-    // The frequence of a term withinthe documents of a specific category.
-    val label_term_freq = Map[String, (Int, Map[String, Int])]()
+    //Note: The internal attributes start with a _
 
-    // count the number of documents for each label.
-    val label_doc_count = Map[String, Int]()
+    // The 'priori' probability for each label/calss.
+    val _priori_prob_label = Map[String, Double]()
 
-    training.foreach{ case (label, document) =>
+    // conditional_probability for each combination of term given label.
+    val _cond_prob_term_on_label = Map[String, Double]()
 
-      // update the map of (label, doc_count)
-      val doc_count = label_doc_count.getOrElse(label, 0)
-      label_doc_count(label) = doc_count + 1
 
-      val (total_term_cnt, term_freq) =
-        label_term_freq.getOrElse(label, (0, Map[String, Int]()))
+    /**
+     * Fit the training data set with multinomial naive Bayes model,
+     *  in order to obtain two probabilites:
+     *  - priori_probability(label)
+     *  - conditional_probability(term | label)
+     */
+    def fit(training: List[(String, List[String])]) {
 
-      // update the frequency count for each term
-      document.foreach{ term =>
-        val term_count = term_freq.getOrElse(term, 0)
-        // increment the count
-        term_freq(term) = term_count + 1
+      // label: (count_all_terms, Map(term, count))
+      // The frequence of a term withinthe documents of a specific category.
+      val label_term_freq = Map[String, (Int, Map[String, Int])]()
+
+      // count the number of documents for each label.
+      val label_doc_count = Map[String, Int]()
+
+      training.foreach{ case (label, document) =>
+        // update the map of (label, doc_count)
+        val doc_count = label_doc_count.getOrElse(label, 0)
+        label_doc_count(label) = doc_count + 1
+
+        val (total_term_cnt, term_freq) =
+          label_term_freq.getOrElse(label, (0, Map[String, Int]()))
+
+        // update the frequency count for each term
+        document.foreach{ term =>
+          val term_count = term_freq.getOrElse(term, 0)
+          // increment the count
+          term_freq(term) = term_count + 1
+        }
+
+        // update the label_term_frequency table
+        label_term_freq(label) = (total_term_cnt + document.size, term_freq)
+      } // end of training data set.
+
+      Utils.print_map("label_term_frequency:", label_term_freq)
+
+      //*calculate the conditional probability of each term within the given doc
+      label_term_freq.foreach{ case (label, (total_count, term_freq))  =>
+        val term_num = term_freq.size
+        term_freq.map{ case (term, count) =>
+          // Use the Laplace smoothing to avoid to zero-way 
+          //   the rare term due to the 'sparse' property of sampling.
+          _cond_prob_term_on_label(s"${label}_${term}") =
+            (count.toDouble+1) / (total_count + term_num)
+        }
       }
 
-      // update the label_term_frequency table
-      label_term_freq(label) = (total_term_cnt + document.size, term_freq)
-    } // end of training data set.
+      val total_doc_num = training.size
 
-    Utils.print_map("label_term_frequency:", label_term_freq)
-
-    // conditional_probability for each combination of label and term
-    val cond_prob_label_term = Map[String, Double]()
-
-    label_term_freq.foreach{ case (label, (total_count, term_freq))  =>
-      val term_num = term_freq.size
-      term_freq.map{ case (term, count) =>
-        // Use the Laplace smoothing to avoid to zero-way 
-        //   the rare term due to the 'sparse' property of sampling.
-        cond_prob_label_term(s"${label}_${term}") =
-          (count.toDouble+1) / (total_count + term_num)
+      //*calculate the 'a priori' probability for each label/class.
+      label_doc_count.foreach{ case (label, doc_count) =>
+        _priori_prob_label(label) = doc_count.toDouble / total_doc_num
       }
+      Utils.print_map("label_priori_probability:", _priori_prob_label)
+
+      Utils.print_map("label_term_conditional_probability:",
+                      _cond_prob_term_on_label)
     }
 
-    val total_doc_num = training.size
-    // calculate the 'a priori' probability for each label/class.
-    val priori_prob_label = label_doc_count.map{ case (label, doc_count) =>
-      (label, doc_count.toDouble / total_doc_num)
-    }
-
-    Utils.print_map("label_term_conditional_probability:", cond_prob_label_term)
-    cond_prob_label_term
   }
 
 
@@ -144,7 +159,7 @@ object NaiveBayes {
       Utils.print_list("training_data_set:", training, "\n")
       Utils.print_list("test_data_set:", test)
 
-      multinomial_naive_bayes_fit(training)
+      multinomial_naive_Bayes.fit(training)
 
     } else {
       Console.err.println("Error: missing the input file!")
