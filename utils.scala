@@ -16,7 +16,19 @@ object Utils {
     println()
   }
 
-  
+
+  /**
+   *  Print a matrix, a dense one (list of list)
+   */
+  def print_matrix[T](header: String, matrix: List[List[T]]) {
+    println(header)
+    matrix.foreach{ row =>
+      row.foreach{ x => print("\t"+x) }
+      println()
+    }
+  }
+
+
   /**
    * A template function to print a 'mutable' map.
    */

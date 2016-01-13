@@ -1,4 +1,6 @@
 
+import Utils._
+
 import scala.io.Source
 import scala.collection.mutable.ListBuffer
 
@@ -73,24 +75,24 @@ object LinearRegression {
         val y = yX._1
         val X = yX._2
 
-        printList("y:", y)
-        printMatrix("X:", X)
+        Utils.print_list("y:", y)
+        Utils.print_matrix("X:", X)
 
         val X_T = transpose(X)
-        printMatrix("transposed X:", X_T)
+        Utils.print_matrix("transposed X:", X_T)
 
         val X_T_dot_X = A_T_dot_A(X_T)
-        printMatrix("X_T * X", X_T_dot_X)
+        Utils.print_matrix("X_T * X", X_T_dot_X)
 
         val elems = X_T_dot_X.flatMap{l=>l}.toArray
         val X_T_dot_X_inverse = inverse_matrix_of_2_by_2(elems)
-        printMatrix("(X_T * X)^-1 (inversion)", X_T_dot_X_inverse)
+        Utils.print_matrix("(X_T * X)^-1 (inversion)", X_T_dot_X_inverse)
 
         val X_T_dot_y = inner_product(X_T, y)
-        printList("X_T * y", X_T_dot_y)
+        Utils.print_list("X_T * y", X_T_dot_y)
 
         val beta = inner_product(X_T_dot_X_inverse, X_T_dot_y)
-        printList("beta:", beta)
+        Utils.print_list("beta:", beta)
     }
 
     /*
@@ -115,13 +117,7 @@ object LinearRegression {
     }
 
 
-    def printMatrix(header: String, matrix: List[List[Float]]) {
-        println(header)
-        matrix.foreach{ row =>
-            row.foreach{ x => print("\t"+x) }
-            println()
-        }
-    }
+
 
     def main(args: Array[String]) {
        
