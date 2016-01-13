@@ -103,8 +103,12 @@ object NaiveBayes {
     val cond_prob_label_term = Map[String, Double]()
 
     label_term_freq.foreach{ case (label, (total_count, term_freq))  =>
+      val term_num = term_freq.size
       term_freq.map{ case (term, count) =>
-        cond_prob_label_term(s"${label}_${term}") = count.toDouble / total_count
+        // Use the Laplace smoothing to avoid to zero-way 
+        //   the rare term due to the 'sparse' property of sampling.
+        cond_prob_label_term(s"${label}_${term}") =
+          (count.toDouble+1) / (total_count + term_num)
       }
     }
 
