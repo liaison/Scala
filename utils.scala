@@ -8,11 +8,14 @@ object Utils {
 
   /**
    * A template function to print the list.
+   * @param header: a user-provided header to print before the list.
+   * @param list: the list to be printed.
+   * @param elem_sep: an optional separator between elements, default "\t"
    */
-  def print_list[T](header: String, list: List[T]) {
+  def print_list[T](header: String, list: List[T], elem_sep: String = "\t" ) {
     println("")
     println(header)
-    list.foreach{ x => print("\t" + x) }
+    list.foreach{ x => print(x + elem_sep) }
     println()
   }
 

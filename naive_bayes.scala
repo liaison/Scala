@@ -47,25 +47,25 @@ object NaiveBayes {
 
 
   /**
-   * Load the input file into the training and the testing data set.
+   * Load the input file into the training and the test data set.
    */
   def parse_input(input: List[String]) :
     (List[(String, List[String])], List[List[String]]) = {
 
-    val training_data = new ArrayBuffer[(String, List[String])]()
-    val testing_data = new ArrayBuffer[List[String]]()
+    val training = new ArrayBuffer[(String, List[String])]()
+    val test = new ArrayBuffer[List[String]]()
 
     input.foreach{ line =>
       val delimit = line.indexOf(',')
       val label = line.take(delimit).trim
       val document = line.substring(delimit+1).trim
       label match {
-        case "" => testing_data += parse_term(document)
-        case _  => training_data.append((label, parse_term(document)))
+        case "" => test += parse_term(document)
+        case _  => training.append((label, parse_term(document)))
       }
     }
 
-    (training_data.toList, testing_data.toList)
+    (training.toList, test.toList)
   }
 
 
@@ -74,14 +74,21 @@ object NaiveBayes {
    *
    *  (priori_probability(label), conditional_probability(term | label))
    */
-  def multinomial_naive_bayes_fit(training_data: List[(String, List[String])])
+  def multinomial_naive_bayes_fit(training: List[(String, List[String])])
     : Map[String, Double] = {
 
     // label: (count_all_terms, Map(term, count))
     // The frequence of a term withinthe documents of a specific category.
     val label_term_freq = Map[String, (Int, Map[String, Int])]()
 
-    training_data.foreach{ case (label, document) =>
+    // count the number of documents for each label.
+    val label_doc_count = Map[String, Int]()
+
+    training.foreach{ case (label, document) =>
+
+      // update the map of (label, doc_count)
+      val doc_count = label_doc_count.getOrElse(label, 0)
+      label_doc_count(label) = doc_count + 1
 
       val (total_term_cnt, term_freq) =
         label_term_freq.getOrElse(label, (0, Map[String, Int]()))
@@ -112,8 +119,13 @@ object NaiveBayes {
       }
     }
 
-    Utils.print_map("label_term_conditional_probability:", cond_prob_label_term)
+    val total_doc_num = training.size
+    // calculate the 'a priori' probability for each label/class.
+    val priori_prob_label = label_doc_count.map{ case (label, doc_count) =>
+      (label, doc_count.toDouble / total_doc_num)
+    }
 
+    Utils.print_map("label_term_conditional_probability:", cond_prob_label_term)
     cond_prob_label_term
   }
 
@@ -127,10 +139,10 @@ object NaiveBayes {
       val input = Source.fromFile(args(0)).getLines.toList
                     .filterNot(l => l.startsWith("#") || l.trim == "")
 
-      val (training, testing) = parse_input(input)
+      val (training, test) = parse_input(input)
 
-      Utils.print_list("training_data_set:", training)
-      Utils.print_list("testing_data_set:", testing)
+      Utils.print_list("training_data_set:", training, "\n")
+      Utils.print_list("test_data_set:", test)
 
       multinomial_naive_bayes_fit(training)
 
