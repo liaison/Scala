@@ -142,6 +142,23 @@ object NaiveBayes {
                       _cond_prob_term_on_label)
     }
 
+
+    def predict(test: List[List[String]]): List[List[(String, Double)]] = {
+        test.map{ doc =>
+          _priori_prob_label.map{ case (label, priori)=>
+             // probability + 1 to shift the value to positive zone.
+             //  Otherwise the appearance of evidence would weaken the decision.
+             val posteriori = doc.foldLeft(math.log(priori+1)){ (acc, term) =>
+               acc +
+                 math.log(1 +
+                   _cond_prob_term_on_label.getOrElse(s"${label}_${term}", 0.0))
+             }
+
+             (label, posteriori)
+          }.toList
+        }
+    }
+
   }
 
 
@@ -154,12 +171,17 @@ object NaiveBayes {
       val input = Source.fromFile(args(0)).getLines.toList
                     .filterNot(l => l.startsWith("#") || l.trim == "")
 
+      // partition
       val (training, test) = parse_input(input)
-
+      
+      // Training
       Utils.print_list("training_data_set:", training, "\n")
-      Utils.print_list("test_data_set:", test)
-
       multinomial_naive_Bayes.fit(training)
+
+      // Fit model
+      val result = multinomial_naive_Bayes.predict(test)
+      Utils.print_list("test_data_set:", test, "\n")
+      Utils.print_list("posteriori_prob:", result, "\n")
 
     } else {
       Console.err.println("Error: missing the input file!")
