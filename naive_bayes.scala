@@ -148,14 +148,13 @@ object NaiveBayes {
           _priori_prob_label.map{ case (label, priori)=>
              // probability + 1 to shift the value to positive zone.
              //  Otherwise the appearance of evidence would weaken the decision.
-             val posteriori = doc.foldLeft(math.log(priori+1)){ (acc, term) =>
+             val ranking = doc.foldLeft(math.log(priori+1)){ (acc, term) =>
                acc +
                  math.log(1 +
                    _cond_prob_term_on_label.getOrElse(s"${label}_${term}", 0.0))
              }
-
-             (label, posteriori)
-          }.toList
+             (label, ranking)
+          }.toList.sortWith{ case ((_,rankA), (_, rankB)) => rankA > rankB }
         }
     }
 
@@ -181,7 +180,7 @@ object NaiveBayes {
       // Fit model
       val result = multinomial_naive_Bayes.predict(test)
       Utils.print_list("test_data_set:", test, "\n")
-      Utils.print_list("posteriori_prob:", result, "\n")
+      Utils.print_list("ranking:", result, "\n")
 
     } else {
       Console.err.println("Error: missing the input file!")
