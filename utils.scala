@@ -20,6 +20,14 @@ object Utils {
   }
 
 
+  def print_array[T](header: String, array: Array[T], elem_sep: String = "\t") {
+    println("")
+    println(header)
+    array.foreach{ x => print(x + elem_sep) }
+    println()
+  }
+
+
   /**
    *  Print a matrix, a dense one (list of list)
    */

@@ -11,6 +11,14 @@ import scala.collection.mutable.Map
  */
 object DecisionTree {
 
+  def parse(input: List[String]): Array[(String, Array[String])] ={
+    input.map{line =>
+      val fields = line.split(",").map(_.trim)
+      val label = fields(0)
+      (label, fields.tail)
+    }.toArray
+  }
+
   /**
    *  The main function !
    */
@@ -19,6 +27,10 @@ object DecisionTree {
     if (args.length > 0) { 
       val input = Source.fromFile(args(0)).getLines.toList
                     .filterNot(l => l.startsWith("#") || l.trim == "")
+
+      val training = parse(input)
+
+      Utils.print_array("training", training, "\n")
 
       // partition
       
