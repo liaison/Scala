@@ -19,6 +19,34 @@ object DecisionTree {
     }.toArray
   }
 
+
+  def train(training: Array[(String, Array[String])]) {
+
+    val (label, feature) = training(0)
+    val feature_size = feature.size
+   
+    //partition(training, index)
+  }
+
+  /**
+   * Partition a data set based on a specific feature.
+   */
+  def partition_by(data_set: Array[(String, Array[String])], feature_index: Int)
+    : Map[String, Array[(String, Array[String])]] = {
+    val partition_map = Map[String, ArrayBuffer[(String, Array[String])]]()
+ 
+    data_set.foreach{ case (label, feature_vec) =>
+      val key = feature_vec(feature_index)
+      val group = partition_map.getOrElse(key,
+                    new ArrayBuffer[(String, Array[String])]())
+      group.append((label, feature_vec))
+      partition_map(key) = group
+    }
+
+    partition_map.map{ case (label, group) => (label, group.toArray)}
+  }
+
+
   /**
    *  The main function !
    */
