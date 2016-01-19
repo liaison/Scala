@@ -24,26 +24,72 @@ object DecisionTree {
 
     val (label, feature) = training(0)
     val feature_size = feature.size
-   
-    //partition(training, index)
+    val total_item = training.size.toDouble
+
+    // Calculate the entropy of groups by dividing by each feature.
+    val feature_entropy = (0 until feature_size).toList.map{ i =>
+      val groups = partition_by(training, i)
+
+      Utils.print_map("partitions:", groups)
+
+      val E_groups = groups.foldLeft(0.0){ case (acc, (feature, subgroup)) =>
+        acc + entropy(subgroup) * (subgroup.size / total_item)
+      }
+      (i, E_groups)
+    }
+
+    Utils.print_list("feature_entropy:", feature_entropy)
+
+    // The best feature is the one with the least entropy,
+    // Dividing from this feature would allow us to "gain" the most information.
+    val best_feature = feature_entropy.sortWith{
+      case ((aI, aE), (bI, bE)) => aE < bE
+    }.head
+
+    println(best_feature)
+
   }
 
   /**
+   * Calculate the entropy of a group/set of data.
+   *   E(data_set) = sum( - log(prob) * prob )
+   *
+   *     prob: probability of each value
+   */
+  def entropy(data_set: List[String]) : Double = {
+    val value_count = Map[String, Int]()
+    val total_count = data_set.size.toDouble
+
+    data_set.foreach{ value =>
+      val count = value_count.getOrElse(value, 0)
+      value_count(value) = count + 1
+    }
+
+    value_count.foldLeft(0.0){ case (acc, (value, count)) =>
+      val prob = count / total_count
+      acc - math.log(prob) * prob
+    }
+  }
+
+
+  /**
    * Partition a data set based on a specific feature.
+   *  @return label_group for each value of the specified feature.
    */
   def partition_by(data_set: Array[(String, Array[String])], feature_index: Int)
-    : Map[String, Array[(String, Array[String])]] = {
-    val partition_map = Map[String, ArrayBuffer[(String, Array[String])]]()
+    : Map[String, List[String]] = {
+    // <feature_value, label_value>
+    val partition_map = Map[String, ArrayBuffer[String]]()
  
     data_set.foreach{ case (label, feature_vec) =>
       val key = feature_vec(feature_index)
-      val group = partition_map.getOrElse(key,
-                    new ArrayBuffer[(String, Array[String])]())
-      group.append((label, feature_vec))
+      val group = partition_map.getOrElse(key, new ArrayBuffer[String]())
+      group.append(label)
       partition_map(key) = group
     }
 
-    partition_map.map{ case (label, group) => (label, group.toArray)}
+    // convert the group type and return the partition map.
+    partition_map.map{ case (label, group) => (label, group.toList)}
   }
 
 
@@ -56,13 +102,14 @@ object DecisionTree {
       val input = Source.fromFile(args(0)).getLines.toList
                     .filterNot(l => l.startsWith("#") || l.trim == "")
 
-      val training = parse(input)
+      Utils.print_list("Input:", input, "\n")
 
-      Utils.print_array("training", training, "\n")
+      val training = parse(input)
 
       // partition
       
       // Training
+      train(training)
 
       // Fit model
 

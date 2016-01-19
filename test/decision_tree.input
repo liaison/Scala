@@ -7,7 +7,7 @@
 # PlayTennis, Outlook, Temperature, Humidity, Wind
    No,       Sunny,    Hot,         High,     Weak
    No,       Sunny,    Hot,         High,     Strong
-  Yes,       Overcast, Hot,         Hight,    Weak
+  Yes,       Overcast, Hot,         High,     Weak
   Yes,       Rain,     Mild,        High,     Weak
   Yes,       Rain,     Cool,        Normal,   Weak
    No,       Rain,     Cool,        Normal,   Strong
