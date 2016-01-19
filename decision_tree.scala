@@ -20,17 +20,53 @@ object DecisionTree {
   }
 
 
-  def train(training: Array[(String, Array[String])]) {
+  class DTree(n: String) {
+    val name = n
+    val children = new ArrayBuffer[DTree]()
+    val data = new ArrayBuffer[(String, Array[String])]()
+  }
 
-    val (label, feature) = training(0)
+
+  def print_dtree(root: DTree) {
+    println("decision_tree:")
+
+    def rec_print(node: DTree, level: Int) {
+      val indent = Array.fill[Char](level)('\t')
+      indent.foreach(print)
+      println(node.name)
+      node.data.foreach{ case (label, features) =>
+        indent.foreach(print)
+        print(s"$label: ")
+        features.foreach(f => print(s"\t$f,"))
+        println("")
+      }
+      node.children.foreach(c => rec_print(c, level+1))
+    }
+
+    rec_print(root, 1)
+  }
+
+
+  def train(training: Array[(String, Array[String])]) {
+    val root = divide(training)
+
+    print_dtree(root)
+  }
+
+  /**
+   *  Classify/divide the data set, according to the decision tree algorithm.
+   */
+  def divide(data_set: Array[(String, Array[String])]) : DTree = {
+
+    val (label, feature) = data_set(0)
     val feature_size = feature.size
-    val total_item = training.size.toDouble
+    val total_item = data_set.size.toDouble
 
     // Calculate the entropy of groups by dividing by each feature.
     val feature_entropy = (0 until feature_size).toList.map{ i =>
-      val groups = partition_by(training, i)
+      val groups = labels_group_by(data_set, i)
 
-      Utils.print_map("partitions:", groups)
+      //Utils.print_map("partitions:", groups)
 
       val E_groups = groups.foldLeft(0.0){ case (acc, (feature, subgroup)) =>
         acc + entropy(subgroup) * (subgroup.size / total_item)
@@ -46,9 +82,27 @@ object DecisionTree {
       case ((aI, aE), (bI, bE)) => aE < bE
     }.head
 
-    println(best_feature)
+    println(s"best_feature: $best_feature") 
 
+    val (bf_index, bf_entropy) = best_feature
+
+    val node_name = s"feature:$bf_index, entropy:$bf_entropy"
+    val node = new DTree(node_name)
+
+    // Recursively divide the data set, start from the best feature
+    if (bf_entropy != 0) {
+      val partitions = partition_by(data_set, bf_index)
+      node.children ++= partitions.map(g => divide(g))
+    
+    } else {
+      // leaf node
+      node.data ++= data_set
+    }
+
+    // return the node
+    return node
   }
+
 
   /**
    * Calculate the entropy of a group/set of data.
@@ -73,25 +127,48 @@ object DecisionTree {
 
 
   /**
-   * Partition a data set based on a specific feature.
+   * Select labels group by a specific feature.
    *  @return label_group for each value of the specified feature.
    */
-  def partition_by(data_set: Array[(String, Array[String])], feature_index: Int)
+  def labels_group_by(data_set: Array[(String, Array[String])],
+                      feature_index: Int)
     : Map[String, List[String]] = {
     // <feature_value, label_value>
-    val partition_map = Map[String, ArrayBuffer[String]]()
+    val feature_label_map = Map[String, ArrayBuffer[String]]()
  
     data_set.foreach{ case (label, feature_vec) =>
       val key = feature_vec(feature_index)
-      val group = partition_map.getOrElse(key, new ArrayBuffer[String]())
+      val group = feature_label_map.getOrElse(key, new ArrayBuffer[String]())
       group.append(label)
+      feature_label_map(key) = group
+    }
+
+    // convert the group type and return the partition map.
+    feature_label_map.map{ case (f_value, group) => (f_value, group.toList) }
+  }
+
+
+  /**
+   * Partition the data set into a list of sub dataset based on the selected feature.
+   */
+  def partition_by(data_set: Array[(String, Array[String])],
+                   feature_index: Int)
+    : Array[Array[(String, Array[String])]]= {
+
+    // <feature_value, label_value>
+    val partition_map = Map[String, ArrayBuffer[(String, Array[String])]]()
+
+    data_set.foreach{ case (label, feature_vec) =>
+      val key = feature_vec(feature_index)
+      val group = partition_map.getOrElse(key,
+              new ArrayBuffer[(String, Array[String])]())
+      group.append((label, feature_vec))
       partition_map(key) = group
     }
 
     // convert the group type and return the partition map.
-    partition_map.map{ case (label, group) => (label, group.toList)}
+    partition_map.values.map{ _.toArray }.toArray
   }
-
 
   /**
    *  The main function !
