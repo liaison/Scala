@@ -23,6 +23,8 @@ object DecisionTree {
   class DTree(n: String) {
     val name = n
     val children = new ArrayBuffer[DTree]()
+
+    // Only the leaf nodes contain data
     val data = new ArrayBuffer[(String, Array[String])]()
   }
 
@@ -62,31 +64,35 @@ object DecisionTree {
     val feature_size = feature.size
     val total_item = data_set.size.toDouble
 
-    // Calculate the entropy of groups by dividing by each feature.
-    val feature_entropy = (0 until feature_size).toList.map{ i =>
+    // Calculate the gini_impurity/entropy of groups dividing by each feature.
+    val feature_rate = (0 until feature_size).toList.map{ i =>
       val groups = labels_group_by(data_set, i)
 
       //Utils.print_map("partitions:", groups)
 
-      val E_groups = groups.foldLeft(0.0){ case (acc, (feature, subgroup)) =>
-        acc + entropy(subgroup) * (subgroup.size / total_item)
-      }
-      (i, E_groups)
+      val (g, e) : (Double, Double) =
+        groups.foldLeft((0.0, 0.0)){ case ((g, e), (feature, subgroup)) =>
+          val weight = subgroup.size / total_item
+          (g + gini_impurity(subgroup) * weight,
+           e + entropy(subgroup) * weight)
+        }
+
+      (i, g, e)
     }
 
-    Utils.print_list("feature_entropy:", feature_entropy)
+    Utils.print_list("feature_gini_entropy:", feature_rate)
 
     // The best feature is the one with the least entropy,
     // Dividing from this feature would allow us to "gain" the most information.
-    val best_feature = feature_entropy.sortWith{
-      case ((aI, aE), (bI, bE)) => aE < bE
+    val best_feature = feature_rate.sortWith{
+      case ((aI, aG, aE), (bI, bG, bE)) => aE < bE
     }.head
 
     println(s"best_feature: $best_feature") 
 
-    val (bf_index, bf_entropy) = best_feature
+    val (bf_index, bf_gini, bf_entropy) = best_feature
 
-    val node_name = s"feature:$bf_index, entropy:$bf_entropy"
+    val node_name = s"feature:$bf_index, gini:$bf_gini, entropy:$bf_entropy"
     val node = new DTree(node_name)
 
     // Recursively divide the data set, start from the best feature
@@ -103,6 +109,20 @@ object DecisionTree {
     return node
   }
 
+  /**
+   * Count the appearance of each value in the data set,
+   *  which can be used to facilitate the priori possibility of each value.
+   */
+  def count_values(data_set: List[String]) : Map[String, Int] = {
+    val value_count = Map[String, Int]()
+
+    data_set.foreach{ value =>
+      val count = value_count.getOrElse(value, 0)
+      value_count(value) = count + 1
+    }
+
+    value_count
+  }
 
   /**
    * Calculate the entropy of a group/set of data.
@@ -111,17 +131,32 @@ object DecisionTree {
    *     prob: probability of each value
    */
   def entropy(data_set: List[String]) : Double = {
-    val value_count = Map[String, Int]()
+    val value_count = count_values(data_set)
     val total_count = data_set.size.toDouble
-
-    data_set.foreach{ value =>
-      val count = value_count.getOrElse(value, 0)
-      value_count(value) = count + 1
-    }
 
     value_count.foldLeft(0.0){ case (acc, (value, count)) =>
       val prob = count / total_count
       acc - math.log(prob) * prob
+    }
+  }
+
+
+  /**
+   * Calculate the Gini impurity, 
+   *   GP(data_set) = 1 - sum(prob ^ 2)
+   *
+   * which can be interpreted as the possibility of assigning a
+   *  a random data item to the wrong class.
+   *
+   * The lower the possibility, the more uniform/reguliar the data set.
+   */
+  def gini_impurity(data_set: List[String]) : Double = {
+    val value_count = count_values(data_set)
+    val total_count = data_set.size.toDouble
+
+    value_count.foldLeft(1.0){ case (acc, (value, count)) =>
+      val prob = count / total_count
+      acc - prob * prob
     }
   }
 
