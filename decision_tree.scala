@@ -7,7 +7,7 @@ import scala.collection.mutable.Map
 
 
 /**
- *
+ *  The decision tree algorithm
  */
 object DecisionTree {
 
@@ -227,7 +227,7 @@ object DecisionTree {
 
     } else {
       Console.err.println("Error: missing the input file!")
-      println("Usage:\n\t Scala Tokenizer input.file")
+      println("Usage:\n\t Scala decision_tree.scala input.file")
     }
 
   } // end of main
