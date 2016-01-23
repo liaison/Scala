@@ -1,9 +1,22 @@
+
 # Note
 
-This project started a toy project to learn programming in Scala.
+This project started a toy project to learn programming in Scala. Then I realised that it would be fun to implement some algorithms that I know, especially those of machine learning.
 
-Then I realised that it would be fun to implement some algorithms that I know, especially those of machine learning.
+Here is a list of algorithms that I did, which I cannot claim the originality of the ideas, but more of initiativity and maybe some non-so-trivial implementation.
 
+## Machine learning
+   - Naive Bayes classification (multinomial and Bernoulli models)
+   - Decision Tree (with either entropy or Gini impurity as the partition criteria)
+   - Linear regression (the inverse of the matrix is the main tricky point)
+   - K-means classification (K-means ++ centroid selection optimization)
+
+## Misc
+   - Page ranking
+   - Merge sort
+   - Closest pair of points ( with the complexity of O(n*lgn) )
+   - Point in polygon 
+   
 # How to 
 
 * Build the source files
