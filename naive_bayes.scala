@@ -4,6 +4,7 @@ import Utils._
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Map
+import scala.collection.mutable.Set
 
 
 /**
@@ -162,6 +163,104 @@ object NaiveBayes {
 
 
   /**
+   * https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes.
+   * Note: the Bernoulli model is NOT equivalent to the multinomial model with
+   *   the frequence of term truncated into one.
+   * 
+   * The probability model of Bernoulli is different from the multinomial,
+   *   where it explicitly models the "absence" of a term.
+   */
+  object Bernoulli_naive_Bayes {
+     // priori probability for each class / label
+     var _priori_prob = Map[String, Double]()
+
+     // conditional probability for each combination of label/term
+     var _cond_prob = Map[(String, String), Double]()
+     
+     // the gobal set of vacabulary
+     val _global_term_set = Set[String]()
+
+     /**
+      *  Fit the training data with Bernoulli Naive Bayes model
+      */
+     def fit(training: List[(String, List[String])]) {
+       val total_doc_cnt = training.size
+
+       // the number of documents that each label presents
+       val doc_per_label = Map[String, Int]()
+
+       // given a label, count the number of documents that contains the term,
+       //  where the key is ($label, $term)
+       val doc_per_label_term = Map[(String, String), Int]()
+
+       training.foreach{ case (label, doc) =>
+         // update the number of documents that each kind of label is attributed
+         val doc_count = doc_per_label.getOrElse(label, 0)
+         doc_per_label(label) = doc_count + 1
+
+         // get the Set of terms within a document.
+         val doc_term_set = Set[String]() 
+         doc.foreach{ case term =>
+           doc_term_set += term
+           _global_term_set += term
+         }
+
+         doc_term_set.foreach{ case term =>
+           val key = (label, term)
+           val count = doc_per_label_term.getOrElse(key, 0)
+           doc_per_label_term(key) = count + 1
+         }
+       }
+
+       // calculate the priori probability for each class.
+       _priori_prob = doc_per_label.map{ case (label, cnt) =>
+         (label, cnt.toDouble / total_doc_cnt)
+       }
+
+       // calculate the conditional probability for each combination of label/term.
+       _cond_prob = doc_per_label.flatMap{ case (label, doc_per_label) =>
+
+           _global_term_set.map{ case term =>
+             val doc_per_term = doc_per_label_term.getOrElse((label, term), 0)
+
+             // laplace smoothing as in multinomial model
+             ((label, term), (doc_per_term + 1.0)/(doc_per_label + 2.0))
+           }
+       }
+
+     } // end of fit() function
+
+
+     def print_model() {
+       val sorted_cond_prob =
+         _cond_prob.toSeq.sortBy{ case ((label, term), prob) => label }.toList
+
+       Utils.print_map("Bernoulli priori probability:", _priori_prob)
+       Utils.print_list("Bernoulli conditional probability:", sorted_cond_prob, "\n")
+     }
+
+
+     def predict(test: List[List[String]]): List[List[(String, Double)]] = {
+        test.map{ doc =>
+          _priori_prob.map{ case (label, priori)=>
+             // probability + 1 to shift the value to positive zone.
+             //  Otherwise the appearance of evidence would weaken the decision.
+             val ranking =
+               _global_term_set.foldLeft(math.log(priori+1)){ (acc, term) =>
+               val cond_prob = _cond_prob.get((label, term)).get
+               if(doc.contains(term)) acc + math.log(1 + cond_prob)
+               else acc - math.log(1 + cond_prob)
+             }
+
+             // get the posteriori possibility for each label.
+             (label, ranking)
+          }.toList.sortWith{ case ((_,rankA), (_, rankB)) => rankA > rankB }
+        }
+     }
+  }// end of Bernoulli_naive_Bayes object
+
+
+  /**
    *  The main function !
    */
   def main(args : Array[String]) {
@@ -181,6 +280,11 @@ object NaiveBayes {
       val result = multinomial_naive_Bayes.predict(test)
       Utils.print_list("test_data_set:", test, "\n")
       Utils.print_list("ranking:", result, "\n")
+
+      Bernoulli_naive_Bayes.fit(training)
+      Bernoulli_naive_Bayes.print_model()
+      Utils.print_list("Bernoulli result:",
+                       Bernoulli_naive_Bayes.predict(test), "\n")
 
     } else {
       Console.err.println("Error: missing the input file!")
