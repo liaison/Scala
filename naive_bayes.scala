@@ -83,6 +83,8 @@ object NaiveBayes {
     // conditional_probability for each combination of term given label.
     val _cond_prob_term_on_label = Map[String, Double]()
 
+    // the gobal vacabulary set
+    val _global_term_set = Set[String]()
 
     /**
      * Fit the training data set with multinomial naive Bayes model,
@@ -94,65 +96,76 @@ object NaiveBayes {
 
       // label: (count_all_terms, Map(term, count))
       // The frequence of a term withinthe documents of a specific category.
-      val label_term_freq = Map[String, (Int, Map[String, Int])]()
+      val term_per_label = Map[String, (Int, Map[String, Int])]()
 
       // count the number of documents for each label.
-      val label_doc_count = Map[String, Int]()
+      val doc_per_label = Map[String, Int]()
 
       training.foreach{ case (label, document) =>
         // update the map of (label, doc_count)
-        val doc_count = label_doc_count.getOrElse(label, 0)
-        label_doc_count(label) = doc_count + 1
+        val doc_count = doc_per_label.getOrElse(label, 0)
+        doc_per_label(label) = doc_count + 1
 
         val (total_term_cnt, term_freq) =
-          label_term_freq.getOrElse(label, (0, Map[String, Int]()))
+          term_per_label.getOrElse(label, (0, Map[String, Int]()))
 
         // update the frequency count for each term
         document.foreach{ term =>
           val term_count = term_freq.getOrElse(term, 0)
           // increment the count
           term_freq(term) = term_count + 1
+          // update the vacabulary
+          _global_term_set += term
         }
 
-        // update the label_term_frequency table
-        label_term_freq(label) = (total_term_cnt + document.size, term_freq)
+        // update the term_per_label table
+        term_per_label(label) = (total_term_cnt + document.size, term_freq)
       } // end of training data set.
 
-      Utils.print_map("label_term_frequency:", label_term_freq)
-
-      //*calculate the conditional probability of each term within the given doc
-      label_term_freq.foreach{ case (label, (total_count, term_freq))  =>
-        val term_num = term_freq.size
-        term_freq.map{ case (term, count) =>
-          // Use the Laplace smoothing to avoid to zero-way 
-          //   the rare term due to the 'sparse' property of sampling.
-          _cond_prob_term_on_label(s"${label}_${term}") =
-            (count.toDouble+1) / (total_count + term_num)
-        }
-      }
-
-      val total_doc_num = training.size
-
       //*calculate the 'a priori' probability for each label/class.
-      label_doc_count.foreach{ case (label, doc_count) =>
+      val total_doc_num = training.size
+      doc_per_label.foreach{ case (label, doc_count) =>
         _priori_prob_label(label) = doc_count.toDouble / total_doc_num
       }
       Utils.print_map("label_priori_probability:", _priori_prob_label)
 
-      Utils.print_map("label_term_conditional_probability:",
-                      _cond_prob_term_on_label)
+      //*calculate the conditional probability for each combination of label/term
+      term_per_label.foreach{ case (label, (total_count, term_per_label)) =>
+
+       _global_term_set.foreach{ case term =>
+
+          val term_count = term_per_label.getOrElse(term, 0)
+          // Use the Laplace smoothing to avoid to zero-way 
+          //   the rare term due to the 'sparse' property of sampling.
+          _cond_prob_term_on_label(s"${label}_${term}") =
+            (term_count.toDouble+1) / (total_count + _global_term_set.size)
+        }
+      }
+
+      Utils.print_map("term_per_label:", term_per_label)
     }
 
+
+    def print_model() {
+      println(s"global_term_set:\n ${_global_term_set}")
+
+      val sorted_cond_prob =
+        _cond_prob_term_on_label.toSeq.sortBy{ case (key, _) => key }.toList
+
+      Utils.print_list("label_term_conditional_probability:",
+                       sorted_cond_prob, "\n")
+    }
 
     def predict(test: List[List[String]]): List[List[(String, Double)]] = {
         test.map{ doc =>
           _priori_prob_label.map{ case (label, priori)=>
-             // probability + 1 to shift the value to positive zone.
-             //  Otherwise the appearance of evidence would weaken the decision.
-             val ranking = doc.foldLeft(math.log(priori+1)){ (acc, term) =>
+             val ranking = doc.foldLeft(math.log(priori)){ (acc, term) =>
+               // If there is any new term from test data that does not appear
+               //   in the training data set, then assumits conditional
+               //   probability is Zero
                acc +
-                 math.log(1 +
-                   _cond_prob_term_on_label.getOrElse(s"${label}_${term}", 0.0))
+                 math.log(
+                   _cond_prob_term_on_label.getOrElse(s"${label}_${term}", 1.0))
              }
              (label, ranking)
           }.toList.sortWith{ case ((_,rankA), (_, rankB)) => rankA > rankB }
@@ -245,7 +258,7 @@ object NaiveBayes {
           _priori_prob.map{ case (label, priori)=>
              val ranking =
                _global_term_set.foldLeft(math.log(priori)){ (acc, term) =>
-               val cond_prob = _cond_prob.get((label, term)).get
+               val cond_prob = _cond_prob.getOrElse((label, term), 1.0)
 
                if(doc.contains(term)) acc + math.log(cond_prob)
                else                   acc - math.log(cond_prob)
@@ -274,11 +287,12 @@ object NaiveBayes {
       // Training
       Utils.print_list("training_data_set:", training, "\n")
       multinomial_naive_Bayes.fit(training)
+      multinomial_naive_Bayes.print_model()
 
       // Fit model
       val result = multinomial_naive_Bayes.predict(test)
       Utils.print_list("test_data_set:", test, "\n")
-      Utils.print_list("ranking:", result, "\n")
+      Utils.print_list("Multinomial Naive Bayes ranking:", result, "\n")
 
       Bernoulli_naive_Bayes.fit(training)
       Bernoulli_naive_Bayes.print_model()
