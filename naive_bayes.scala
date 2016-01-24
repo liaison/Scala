@@ -243,13 +243,12 @@ object NaiveBayes {
      def predict(test: List[List[String]]): List[List[(String, Double)]] = {
         test.map{ doc =>
           _priori_prob.map{ case (label, priori)=>
-             // probability + 1 to shift the value to positive zone.
-             //  Otherwise the appearance of evidence would weaken the decision.
              val ranking =
-               _global_term_set.foldLeft(math.log(priori+1)){ (acc, term) =>
+               _global_term_set.foldLeft(math.log(priori)){ (acc, term) =>
                val cond_prob = _cond_prob.get((label, term)).get
-               if(doc.contains(term)) acc + math.log(1 + cond_prob)
-               else acc - math.log(1 + cond_prob)
+
+               if(doc.contains(term)) acc + math.log(cond_prob)
+               else                   acc - math.log(cond_prob)
              }
 
              // get the posteriori possibility for each label.
