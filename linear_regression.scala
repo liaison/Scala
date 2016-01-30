@@ -6,6 +6,8 @@ import scala.collection.mutable.ListBuffer
 
 /**
  * The approach of the Least Square to obtain the linear regression model.
+ *  using the inverse of matrix in linear algebra, instead of the 
+ *   iterative algorithm (gradient descent)
  * https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)
  *
  */

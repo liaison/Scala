@@ -3,7 +3,7 @@
 # y X_1 X_2 ... X_i
 #
 # e.g. For the linear regression model y = 2X_1 + 3X_2
-# Here is a list of obversations
+# Here is a list of observations
 #
 
 5.1    1 1
