@@ -8,8 +8,6 @@ China, Chinese Beijing Chinese
 China, Chinese Beijing Shanghai
 China, Chinese Macao
 Japan, Tokyo Japan Chinese
-
-
 # Testing data set, i.e. unlabeled documents
 # This should be categories as "China"
 NA, Chinese Chinese Chinese Tokyo
