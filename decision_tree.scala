@@ -80,7 +80,7 @@ object DecisionTree {
       (i, g, e)
     }
 
-    Utils.print_list("feature_gini_entropy:", feature_rate)
+    Utils.print_list("feature_gini_entropy:", feature_rate, "\n")
 
     // The best feature is the one with the least entropy,
     // Dividing from this feature would allow us to "gain" the most information.
