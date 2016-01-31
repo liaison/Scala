@@ -34,7 +34,9 @@ for file in $SRC_FILE; do
     # extract the main object from the source file
     MAIN_OBJ=`grep -E "object .*{" $file | cut -d " " -f 2`
 
+    echo ""
     echo "$RUN $LD_FLAG $MAIN_OBJ $INPUT_DIR/$INPUT_FILE $CMD_OPTS"
+    echo ""
     $RUN $LD_FLAG $MAIN_OBJ $INPUT_DIR/$INPUT_FILE $CMD_OPTS
 
 done
