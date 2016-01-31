@@ -1,0 +1,15 @@
+
+#, The format of the input
+#, y x
+
+#, e.g. For the linear regression model y = 2x + 1
+#, Here is a list of observations
+
+3.1,    1
+5.2,    2
+5.23,   2.1
+6.9,    3
+8.9,    4
+11.00,  5
+13.00,  6
+
