@@ -15,7 +15,9 @@ CMD_OPTS=""
 
 if [ $# -gt 0 ]; then
     SRC_FILE=$1
-    CMD_OPTS=$2
+    options=($@)
+    unset options[0]
+    CMD_OPTS=${options[@]}  # the command options other than the input file.
 else
     SRC_FILE=`ls *.scala`
 fi
