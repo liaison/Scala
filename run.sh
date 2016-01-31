@@ -26,6 +26,11 @@ for file in $SRC_FILE; do
 
     # replace the extension
     INPUT_FILE=${file//.scala/.input}
+    if ! [ -e $INPUT_DIR/$INPUT_FILE ]
+    then
+        INPUT_FILE=${file//.scala/.csv}
+    fi
+
     # extract the main object from the source file
     MAIN_OBJ=`grep -E "object .*{" $file | cut -d " " -f 2`
 

@@ -61,7 +61,7 @@ object NaiveBayes {
       val label = line.take(delimit).trim
       val document = line.substring(delimit+1).trim
       label match {
-        case "" => test += parse_term(document)
+        case "NA" => test += parse_term(document)
         case _  => training.append((label, parse_term(document)))
       }
     }
