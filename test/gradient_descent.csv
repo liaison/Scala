@@ -1,9 +1,9 @@
 
-#, The format of the input
-#, y x
+#, The format of the input,
+# y, x_1, x_2
 
-#, e.g. For the linear regression model y = 4 + 2*x_1 + 3*x_2
-#, Here is a list of observations
+#,, e.g. For the linear regression model y = 4 + 2*x_1 + 3*x_2
+#,, Here is a list of observations
 
 9.0,    1,    1
 11.1,   2,    1
