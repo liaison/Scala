@@ -12,7 +12,7 @@ Japan, Tokyo Japan Chinese
 
 # Testing data set, i.e. unlabeled documents
 # This should be categories as "China"
-    , Chinese Chinese Chinese Tokyo
+NA, Chinese Chinese Chinese Tokyo
 # This should be categories as "Japan"
-    , Japan Tokyo Chinese Japan
+NA, Japan Tokyo Chinese Japan
 
