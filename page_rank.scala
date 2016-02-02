@@ -44,7 +44,7 @@ object PageRank {
         /** Basically, doing .groupByKey() SQL operation to obtain the map: 
                 Map[url, List[neighbor_urls]] */
         var url_neighbors = input.map{
-            line => val pair = line.split("\\s+")
+            line => val pair = line.split(",").map(_.trim)
             (pair(0), pair(1))
         }.groupBy{case (p0, p1) => p0}.map{ case (k, group) =>
             val neighbor_list = group.map{
