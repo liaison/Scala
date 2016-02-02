@@ -44,6 +44,13 @@ object GradientDescent {
       do {
         iteration += 1
 
+        // It seems that in order to obtain the correct result as the gradient
+        //  descent, we need to have around the same number of iterations.
+        // But for each iteration, we only need to calculate one sample, instead
+        //  of all input which is way much more efficient.
+        // And as the side product, we achieve better precision afterwards.
+        // Actually, we need to set up a higher precision for stochastic version
+        // algorithm, otherwise it would converge to a 'not-so-accurate' result.
         val gradients = calculate_gradients(theta_old, points, stochastic)
  
         val theta_new =
@@ -62,7 +69,7 @@ object GradientDescent {
       println(s"learningRate:${learningRate}\t" +
               s"precision:${precision}\t" +
               s"stochastic:${stochastic}\t" +
-              s"number of iterations: ${iteration}")
+              s"No.iterations: ${iteration}")
 
       // return the new weight vector 
       theta_old
