@@ -1,9 +1,5 @@
 
-#
-# Training and testing data set.
-#
-# Training data input
-#
+# Training and testing data set, , , ,.
 # PlayTennis, Outlook, Temperature, Humidity, Wind
    No,       Sunny,    Hot,         High,     Weak
    No,       Sunny,    Hot,         High,     Strong
@@ -19,8 +15,5 @@
   Yes,       Overcast, Mild,        High,     Strong
   Yes,       Overcast, Hot,         Normal,   Weak
    No,       Rain,     Mild,        High,     Strong
-
-
-
 
 
