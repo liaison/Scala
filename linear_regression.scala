@@ -20,7 +20,7 @@ object LinearRegression {
      */
     def parse(input: List[String]) : (List[Float], List[List[Float]]) = {
         input.map{ s =>
-            val yX = s.split("\\s+").toList.map(_.toFloat)
+            val yX = s.split(",").map(_.trim.toFloat).toList
             (yX.head, yX.tail)
         }.unzip
     }
