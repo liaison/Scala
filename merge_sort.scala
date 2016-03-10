@@ -8,7 +8,7 @@ import scala.io.Source
 object MergeSort {
 
   /**
-   *  the classic quick sort algorithm
+   *  merge sort algorithm implemented in C-style
    */
   def merge_sort(list : Array[Int]) : Array[Int] = {
       // bottom case
@@ -20,15 +20,17 @@ object MergeSort {
       val left = merge_sort(splits._1)
       val right = merge_sort(splits._2)
 
-      // Merge the results in O(n)
       var l_cursor = 0
       val l_bound = left.length
       var r_cursor = 0
       val r_bound = right.length
       val sorted_list = new Array[Int](list.length)
-      while( l_cursor < l_bound ||
-             r_cursor < r_bound ) {
+
+      // Merge the results in O(n)
+      while( l_cursor < l_bound || r_cursor < r_bound ) {
+
           val merge_index = l_cursor + r_cursor
+
           if(l_cursor == l_bound) {
               sorted_list(merge_index) = right(r_cursor)
               r_cursor += 1
