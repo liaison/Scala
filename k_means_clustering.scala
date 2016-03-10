@@ -191,8 +191,9 @@ object KMeansClustering {
      */
     def update_centroids(clusters: Array[Set[(Float, Float)]]) = {
         clusters.map{ set =>
-            val sum = set.foldLeft((0F,0F))((A, B) => (A._1+B._1, A._2+B._2))
-            (sum._1/set.size, sum._2/set.size)
+            val (x_sum, y_sum) =
+              set.foldLeft((0F,0F))((A, B) => (A._1+B._1, A._2+B._2))
+            (x_sum/set.size, y_sum/set.size)
         }
     }
 
