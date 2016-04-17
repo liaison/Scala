@@ -14,6 +14,7 @@ Here is a list of algorithms that I did, which I cannot claim the originality of
 ## Misc
    - Page ranking
    - Merge sort
+   - Gradient descent (batch and stochastic), an algorithm to calculate the local minimum.
    - Closest pair of points ( with the complexity of O(n*lgn) )
    - Point in polygon 
    
